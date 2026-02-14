@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Secret Page</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Dancing+Script:wght@500&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+margin:0;
+font-family:'Poppins', sans-serif;
+text-align:center;
+overflow:hidden;
+background:linear-gradient(135deg,#ffc0cb,#ffe4ec,#ffd6e7);
+}
+
+/* FLOATING DECOR */
+.float{
+position:absolute;
+animation:floatUp 6s linear infinite;
+pointer-events:none;
+z-index:1;
+}
+
+@keyframes floatUp{
+0%{bottom:-50px;opacity:1;}
+100%{bottom:100%;opacity:0;}
+}
+
+/* WHITE BOX */
+.box{
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+background:white;
+border-radius:25px;
+box-shadow:0 8px 25px rgba(0,0,0,0.2);
+width:200px;
+height:250px;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+padding:15px;
+z-index:5;
+}
+
+.finalText{font-weight:600;margin-bottom:8px;}
+
+button{
+padding:8px 14px;
+border:none;
+border-radius:15px;
+background:#f5b7c3;
+cursor:pointer;
+font-size:14px;
+margin:6px;
+font-weight:600;
+}
+
+/* CHEST */
+#chest{width:50px;transition:.4s;}
+.unlockGlow{filter:drop-shadow(0 0 25px gold);transform:scale(1.05);}
+
+/* KEY */
+#key{
+position:absolute;
+right:30px;
+top:50%;
+font-size:70px;
+cursor:grab;
+display:none;
+z-index:20;
+}
+
+/* LOADING */
+#loading{
+position:fixed;
+width:100%;
+height:100%;
+background:#ffb6c1;
+display:none;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+z-index:999;
+}
+
+.loadingText{
+font-size:34px;
+color:white;
+font-weight:600;
+}
+
+.loadingDots span{
+font-size:30px;
+color:white;
+animation:bounce 1s infinite;
+}
+
+.loadingDots span:nth-child(2){animation-delay:0.2s;}
+.loadingDots span:nth-child(3){animation-delay:0.4s;}
+
+@keyframes bounce{
+0%,100%{opacity:0;}
+50%{opacity:1;}
+}
+
+/* NOTIFICATIONS */
+#notifContainer{
+position:fixed;
+top:10px;
+left:50%;
+transform:translateX(-50%);
+width:90%;
+max-width:350px;
+z-index:3000;
+}
+
+.notification{
+background:white;
+border-radius:18px;
+padding:15px;
+margin-bottom:10px;
+box-shadow:0 10px 30px rgba(0,0,0,0.2);
+animation:slideDown .5s ease;
+font-weight:600;
+}
+
+@keyframes slideDown{
+from{transform:translateY(-120px);opacity:0;}
+to{transform:translateY(0);opacity:1;}
+}
+
+/* ENVELOPE */
+.envelope{
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+width:320px;
+height:220px;
+background:#f8c8dc;
+border-radius:12px;
+box-shadow:0 8px 20px rgba(0,0,0,0.2);
+z-index:2;
+animation:slideEnvelope 1.8s ease forwards;
+}
+
+@keyframes slideEnvelope{
+0%{transform:translate(-50%,-50%);}
+100%{transform:translate(-50%,120%);}
+}
+
+.envelopeFlap{
+position:absolute;
+top:-110px;
+left:0;
+width:100%;
+height:110px;
+background:#f3a6c3;
+clip-path:polygon(0 100%,50% 0,100% 100%);
+transform-origin:bottom;
+animation:openFlap 1.5s forwards;
+z-index:3;
+}
+
+/* LETTER */
+.letterContainer{
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,40%);
+width:300px;
+height:400px;
+background:#fffaf4;
+padding:25px;
+border-radius:10px;
+border:1px solid #f1d4d4;
+box-shadow:0 10px 25px rgba(0,0,0,0.25);
+line-height:1.7;
+text-align:left;
+overflow-y:auto;
+font-family:'Dancing Script', cursive;
+background-image:linear-gradient(to bottom, transparent 29px, rgba(0,0,0,0.06) 30px);
+background-size:100% 30px;
+animation:slideLetter 1.8s ease forwards;
+opacity:0;
+z-index:4;
+}
+
+@keyframes slideLetter{
+0%{transform:translate(-50%,120%);opacity:0;}
+100%{transform:translate(-50%,-50%);opacity:1;}
+}
+
+#letterText{white-space:pre-wrap;}
+
+#loveImage{
+width:160px;
+display:block;
+margin:auto;
+transform:scale(0);
+animation:popImage 1.2s ease forwards;
+}
+
+@keyframes popImage{
+0%{transform:scale(0);}
+70%{transform:scale(1.2);}
+100%{transform:scale(1);}
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="notifContainer"></div>
+
+<audio id="unlockSound">
+<source src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3">
+</audio>
+
+<audio id="notifSound">
+<source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3">
+</audio>
+
+<audio id="loveMusic" loop>
+<source src="">
+</audio>
+
+<!-- CHEST -->
+<div id="chestPage" class="box">
+<img id="chest" src="https://pin.it/46LOmoNBm">
+<h4>What is my favorite food?</h4>
+<button onclick="chooseFood(1)">Momo</button>
+<button onclick="chooseFood(2)">Poop</button>
+<button onclick="chooseFood(3)">You</button>
+</div>
+
+<div id="key">🔑</div>
+
+<!-- LOADING -->
+<div id="loading">
+  <div class="loadingText">Loading 😏</div>
+  <div class="loadingDots">
+    <span>.</span>
+    <span>.</span>
+    <span>.</span>
+  </div>
+</div>
+
+<!-- PASSWORD -->
+<div id="login" class="box" style="display:none;">
+<h4>Enter password ❤️</h4>
+<input type="password" id="pass">
+<button onclick="checkPass()">Enter</button>
+</div>
+
+<!-- VALENTINE -->
+<div id="valentine" class="box" style="display:none;">
+<h4>Will you be my valentine babyyy?</h4>
+<button onclick="yes()">Yes</button>
+<button id="noBtn" onclick="moveNo()">No</button>
+</div>
+
+<!-- LOVE PAGE -->
+<div id="lovePage" style="display:none;">
+<div class="box">
+<div class="finalText">I LOVEE YOUU MY POTATIE</div>
+<img id="loveImage" src="https://pin.it/1KKpzYRfM">
+<button onclick="openLetter()">For you 🐧</button>
+</div>
+</div>
+
+<!-- LETTER PAGE -->
+<div id="letterPage" style="display:none;">
+<div class="envelope"><div class="envelopeFlap"></div></div>
+<div class="letterContainer"><div id="letterText"></div></div>
+</div>
+
+<script>
+
+/* FLOATS */
+setInterval(()=>{
+let arr=["❤️","🎀","💋","✨"];
+let d=document.createElement("div");
+d.className="float";
+d.innerHTML=arr[Math.floor(Math.random()*arr.length)];
+d.style.left=Math.random()*100+"vw";
+d.style.fontSize=(20+Math.random()*30)+"px";
+document.body.appendChild(d);
+setTimeout(()=>d.remove(),6000);
+},400);
+
+/* NOTIFICATIONS */
+function notify(t){
+let n=document.createElement("div");
+n.className="notification";
+n.innerHTML=t;
+notifContainer.appendChild(n);
+notifSound.play();
+setTimeout(()=>n.remove(),3500);
+}
+
+/* FOOD */
+function chooseFood(o){
+if(o===1){notify("Yeah i like momo but not more than guess 😙");return;}
+if(o===2){notify("Are you freaking serious!? 😡");return;}
+if(o===3){notify("Hehehehehe 😛");key.style.display="block";}
+}
+
+/* DRAG KEY (PC + MOBILE) */
+let dragging = false;
+key.addEventListener("touchstart",()=>dragging=true);
+key.addEventListener("mousedown",()=>dragging=true);
+document.addEventListener("touchmove",moveKey);
+document.addEventListener("mousemove",moveKey);
+document.addEventListener("mouseup",()=>dragging=false);
+document.addEventListener("touchend",()=>dragging=false);
+
+function moveKey(e){
+if(!dragging) return;
+let x = e.touches ? e.touches[0].clientX : e.clientX;
+let y = e.touches ? e.touches[0].clientY : e.clientY;
+key.style.left = x-30+"px";
+key.style.top = y-30+"px";
+
+let c = chest.getBoundingClientRect();
+let k = key.getBoundingClientRect();
+
+if(k.left<c.right && k.right>c.left && k.top<c.bottom && k.bottom>c.top){
+unlockChest();
+}
+}
+
+/* UNLOCK CHEST */
+function unlockChest(){
+dragging=false;
+key.style.display="none";
+chest.classList.add("unlockGlow");
+unlockSound.play();
+
+// SPARKLES
+for(let i=0;i<25;i++){
+let sparkle=document.createElement("div");
+sparkle.innerHTML="✨";
+sparkle.style.position="absolute";
+sparkle.style.left=(chest.offsetLeft + 80 + (Math.random()*100-50))+"px";
+sparkle.style.top=(chest.offsetTop + 80 + (Math.random()*50-25))+"px";
+sparkle.style.fontSize=(15+Math.random()*15)+"px";
+sparkle.style.zIndex=10;
+document.body.appendChild(sparkle);
+setTimeout(()=>sparkle.remove(),1500);
+}
+
+setTimeout(()=>{
+chestPage.style.display="none";
+loading.style.display="flex";
+
+setTimeout(()=>{
+loading.style.display="none";
+login.style.display="flex";
+},2000);
+
+},1200);
+}
+
+/* PASSWORD */
+function checkPass(){
+if(pass.value==="iloveyourimpi"){
+login.style.display="none";
+valentine.style.display="flex";
+}else notify("Wrong password 😡");
+}
+
+/* NO BUTTON */
+let noCount=0;
+function moveNo(){
+noCount++;
+if(noCount>=3){notify("Really?? Are you serious? F*ck you!! 😤");}
+noBtn.style.position="absolute";
+noBtn.style.left=Math.random()*80+"%";
+noBtn.style.top=Math.random()*80+"%";
+}
+
+/* YES */
+function yes(){
+valentine.style.display="none";
+lovePage.style.display="block";
+document.getElementById("loveMusic").play();
+}
+
+/* OPEN LETTER */
+function openLetter(){
+lovePage.style.display="none";
+letterPage.style.display="block";
+typeLetter();
+}
+
+/* TYPE LETTER */
+function typeLetter(){
+let msg=`I love youuu so muchhh more than Italian brainrots even my favourite tung tung tung tung tung tung tung tung tung.
+
+I'm really sorry If I don't give you much/67 time. I want to walk together with you so we can gain more auras.
+
+Thank you for coming into my life babyyy.
+
+And if F*CKING LOSE ME YOURE AURA WILL BE -9999 BAHAHAHHA.
+
+And focus on your damn board exam and take care of your health I just want you to be happy and healthy.
+
+Sorry if I'm cringe I'm just saying Nungci yabai nungc and ang nwkhwnkhou mwjwng mwnw sona. 🩷
+
+-Rim`;
+
+let i=0;
+let t=setInterval(()=>{
+letterText.innerHTML+=msg.charAt(i);
+i++;
+if(i>=msg.length) clearInterval(t);
+},35);
+}
+
+</script>
+</body>
+  </html>
